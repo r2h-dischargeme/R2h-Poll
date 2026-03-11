@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>R2H — Community Pulse Check</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy:   #1A3A52;
+    --teal:   #1A7A8A;
+    --teal-l: #D6EEF2;
+    --amber:  #D4860A;
+    --amber-l:#FDF3E3;
+    --ink:    #17202A;
+    --grey:   #717D7E;
+    --grey-l: #F4F6F6;
+    --white:  #FFFFFF;
+    --red:    #8B2315;
+    --green:  #1A5E37;
+  }
+
+- { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+font-family: ‘DM Sans’, -apple-system, BlinkMacSystemFont, ‘Segoe UI’, sans-serif;
+background: var(–navy);
+color: var(–white);
+min-height: 100vh;
+overflow-x: hidden;
+}
+
+/* Grain overlay */
+body::before {
+content: ‘’;
+position: fixed;
+inset: 0;
+background-image: url(“data:image/svg+xml,%3Csvg viewBox=‘0 0 256 256’ xmlns=‘http://www.w3.org/2000/svg’%3E%3Cfilter id=‘noise’%3E%3CfeTurbulence type=‘fractalNoise’ baseFrequency=‘0.9’ numOctaves=‘4’ stitchTiles=‘stitch’/%3E%3C/filter%3E%3Crect width=‘100%25’ height=‘100%25’ filter=‘url(%23noise)’ opacity=‘0.04’/%3E%3C/svg%3E”);
+pointer-events: none;
+z-index: 0;
+opacity: 0.6;
+}
+
+.container {
+max-width: 680px;
+margin: 0 auto;
+padding: 60px 24px 80px;
+position: relative;
+z-index: 1;
+}
+
+/* Header */
+.header {
+margin-bottom: 56px;
+}
+
+.badge {
+display: inline-block;
+font-family: ‘Space Mono’, monospace;
+font-size: 10px;
+font-weight: 700;
+letter-spacing: 0.15em;
+color: var(–teal);
+border: 1px solid var(–teal);
+padding: 5px 12px;
+margin-bottom: 24px;
+text-transform: uppercase;
+}
+
+.main-title {
+font-family: ‘DM Serif Display’, serif;
+font-size: clamp(36px, 8vw, 58px);
+line-height: 1.05;
+color: var(–white);
+margin-bottom: 12px;
+}
+
+.main-title em {
+font-style: italic;
+color: var(–amber);
+}
+
+.subtitle {
+font-size: 16px;
+color: rgba(255,255,255,0.55);
+line-height: 1.6;
+max-width: 520px;
+margin-bottom: 32px;
+font-weight: 300;
+}
+
+.manifesto-line {
+border-left: 3px solid var(–amber);
+padding: 14px 20px;
+background: rgba(212,134,10,0.08);
+font-family: ‘DM Serif Display’, serif;
+font-style: italic;
+font-size: 15px;
+color: rgba(255,255,255,0.8);
+line-height: 1.6;
+}
+
+.manifesto-line span {
+display: block;
+font-family: ‘DM Sans’, sans-serif;
+font-style: normal;
+font-size: 11px;
+color: var(–amber);
+margin-top: 8px;
+letter-spacing: 0.05em;
+font-weight: 500;
+}
+
+/* Progress */
+.progress-bar {
+height: 2px;
+background: rgba(255,255,255,0.1);
+margin-bottom: 48px;
+position: relative;
+}
+
+.progress-fill {
+height: 100%;
+background: var(–teal);
+transition: width 0.4s ease;
+}
+
+.progress-text {
+font-family: ‘Space Mono’, monospace;
+font-size: 11px;
+color: var(–grey);
+margin-bottom: 8px;
+letter-spacing: 0.05em;
+}
+
+/* Question blocks */
+.question-block {
+margin-bottom: 48px;
+opacity: 0;
+transform: translateY(20px);
+animation: fadeUp 0.5s ease forwards;
+}
+
+.question-block:nth-child(1) { animation-delay: 0.1s; }
+.question-block:nth-child(2) { animation-delay: 0.2s; }
+.question-block:nth-child(3) { animation-delay: 0.3s; }
+.question-block:nth-child(4) { animation-delay: 0.4s; }
+.question-block:nth-child(5) { animation-delay: 0.5s; }
+.question-block:nth-child(6) { animation-delay: 0.6s; }
+.question-block:nth-child(7) { animation-delay: 0.7s; }
+
+@keyframes fadeUp {
+to { opacity: 1; transform: translateY(0); }
+}
+
+.q-number {
+font-family: ‘Space Mono’, monospace;
+font-size: 10px;
+color: var(–teal);
+letter-spacing: 0.12em;
+margin-bottom: 8px;
+text-transform: uppercase;
+}
+
+.q-text {
+font-family: ‘DM Serif Display’, serif;
+font-size: 20px;
+line-height: 1.4;
+color: var(–white);
+margin-bottom: 6px;
+}
+
+.q-sub {
+font-size: 13px;
+color: rgba(255,255,255,0.4);
+margin-bottom: 18px;
+line-height: 1.5;
+font-weight: 300;
+}
+
+/* Option buttons */
+.options {
+display: flex;
+flex-direction: column;
+gap: 8px;
+}
+
+.options.row {
+flex-direction: row;
+flex-wrap: wrap;
+gap: 8px;
+}
+
+.option-btn {
+background: rgba(255,255,255,0.04);
+border: 1px solid rgba(255,255,255,0.1);
+color: rgba(255,255,255,0.75);
+padding: 14px 18px;
+font-family: ‘DM Sans’, sans-serif;
+font-size: 14px;
+cursor: pointer;
+text-align: left;
+transition: all 0.2s ease;
+line-height: 1.4;
+position: relative;
+overflow: hidden;
+}
+
+.option-btn:hover {
+border-color: var(–teal);
+color: var(–white);
+background: rgba(26,122,138,0.12);
+}
+
+.option-btn.selected {
+border-color: var(–teal);
+background: rgba(26,122,138,0.2);
+color: var(–white);
+}
+
+.option-btn.selected::before {
+content: ‘✓’;
+position: absolute;
+right: 16px;
+top: 50%;
+transform: translateY(-50%);
+color: var(–teal);
+font-size: 14px;
+font-weight: 700;
+}
+
+.option-btn.row-btn {
+flex: 1;
+min-width: 80px;
+text-align: center;
+padding: 12px 10px;
+font-size: 13px;
+}
+
+/* Scale buttons */
+.scale-wrap {
+display: flex;
+gap: 6px;
+align-items: center;
+}
+
+.scale-btn {
+width: 44px;
+height: 44px;
+border: 1px solid rgba(255,255,255,0.1);
+background: rgba(255,255,255,0.04);
+color: rgba(255,255,255,0.6);
+font-family: ‘Space Mono’, monospace;
+font-size: 13px;
+cursor: pointer;
+transition: all 0.2s;
+display: flex;
+align-items: center;
+justify-content: center;
+}
+
+.scale-btn:hover {
+border-color: var(–teal);
+color: var(–white);
+background: rgba(26,122,138,0.15);
+}
+
+.scale-btn.selected {
+background: var(–teal);
+border-color: var(–teal);
+color: var(–white);
+}
+
+.scale-labels {
+display: flex;
+justify-content: space-between;
+margin-top: 8px;
+font-size: 11px;
+color: rgba(255,255,255,0.3);
+font-family: ‘Space Mono’, monospace;
+}
+
+/* Text area */
+.open-input {
+width: 100%;
+background: rgba(255,255,255,0.04);
+border: 1px solid rgba(255,255,255,0.1);
+color: var(–white);
+font-family: ‘DM Sans’, sans-serif;
+font-size: 14px;
+padding: 14px 16px;
+resize: vertical;
+min-height: 80px;
+line-height: 1.6;
+transition: border-color 0.2s;
+outline: none;
+}
+
+.open-input::placeholder { color: rgba(255,255,255,0.25); }
+.open-input:focus { border-color: var(–teal); }
+
+/* Divider */
+.section-divider {
+display: flex;
+align-items: center;
+gap: 16px;
+margin: 40px 0 32px;
+}
+
+.section-divider span {
+font-family: ‘Space Mono’, monospace;
+font-size: 10px;
+letter-spacing: 0.12em;
+color: var(–amber);
+text-transform: uppercase;
+white-space: nowrap;
+}
+
+.section-divider::before,
+.section-divider::after {
+content: ‘’;
+flex: 1;
+height: 1px;
+background: rgba(255,255,255,0.08);
+}
+
+/* Submit */
+.submit-section {
+margin-top: 56px;
+padding-top: 40px;
+border-top: 1px solid rgba(255,255,255,0.08);
+}
+
+.submit-note {
+font-size: 13px;
+color: rgba(255,255,255,0.35);
+margin-bottom: 20px;
+line-height: 1.6;
+font-weight: 300;
+}
+
+.submit-btn {
+background: var(–teal);
+color: var(–white);
+border: none;
+padding: 18px 40px;
+font-family: ‘DM Sans’, sans-serif;
+font-size: 15px;
+font-weight: 600;
+cursor: pointer;
+letter-spacing: 0.02em;
+transition: all 0.2s;
+display: inline-block;
+}
+
+.submit-btn:hover {
+background: #15606d;
+transform: translateY(-1px);
+}
+
+.submit-btn:disabled {
+opacity: 0.4;
+cursor: not-allowed;
+transform: none;
+}
+
+/* Thank you state */
+.thankyou {
+display: none;
+text-align: center;
+padding: 80px 0;
+}
+
+.thankyou.show { display: block; }
+
+.thankyou-icon {
+font-size: 48px;
+margin-bottom: 24px;
+}
+
+.thankyou h2 {
+font-family: ‘DM Serif Display’, serif;
+font-size: 36px;
+color: var(–white);
+margin-bottom: 16px;
+}
+
+.thankyou p {
+color: rgba(255,255,255,0.55);
+font-size: 15px;
+line-height: 1.7;
+max-width: 420px;
+margin: 0 auto 32px;
+font-weight: 300;
+}
+
+.thankyou .manifesto-end {
+font-family: ‘DM Serif Display’, serif;
+font-style: italic;
+font-size: 18px;
+color: var(–amber);
+}
+
+/* Footer */
+.footer {
+margin-top: 80px;
+padding-top: 24px;
+border-top: 1px solid rgba(255,255,255,0.06);
+display: flex;
+justify-content: space-between;
+align-items: center;
+flex-wrap: gap;
+gap: 12px;
+}
+
+.footer-brand {
+font-family: ‘Space Mono’, monospace;
+font-size: 11px;
+color: rgba(255,255,255,0.25);
+letter-spacing: 0.08em;
+}
+
+.footer-note {
+font-size: 11px;
+color: rgba(255,255,255,0.2);
+text-align: right;
+}
+
+/* Checkbox multi-select */
+.multi-option {
+display: flex;
+align-items: flex-start;
+gap: 12px;
+background: rgba(255,255,255,0.04);
+border: 1px solid rgba(255,255,255,0.1);
+padding: 14px 16px;
+cursor: pointer;
+transition: all 0.2s;
+}
+
+.multi-option:hover {
+border-color: var(–teal);
+background: rgba(26,122,138,0.1);
+}
+
+.multi-option.selected {
+border-color: var(–teal);
+background: rgba(26,122,138,0.18);
+}
+
+.checkbox-box {
+width: 16px;
+height: 16px;
+border: 1px solid rgba(255,255,255,0.25);
+flex-shrink: 0;
+margin-top: 2px;
+display: flex;
+align-items: center;
+justify-content: center;
+transition: all 0.2s;
+}
+
+.multi-option.selected .checkbox-box {
+background: var(–teal);
+border-color: var(–teal);
+}
+
+.checkbox-tick {
+color: white;
+font-size: 10px;
+display: none;
+}
+
+.multi-option.selected .checkbox-tick { display: block; }
+
+.multi-label {
+font-size: 14px;
+color: rgba(255,255,255,0.7);
+line-height: 1.4;
+}
+
+.multi-option.selected .multi-label { color: var(–white); }
+
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- HEADER -->
+
+  <div class="header">
+    <div class="badge">R2H · Community Pulse Check · 2026</div>
+    <h1 class="main-title">Does this<br><em>exist</em> for you?</h1>
+    <p class="subtitle">We're building something that wasn't there when we came home. Before we build it, we want to know if it's what the community actually needs. This is not a survey. It's a conversation starter. Blunt answers only.</p>
+
+  </div>
+
+  <!-- MAIN FORM -->
+
+  <div id="poll-form">
+
+```
+<div class="progress-text">QUESTION PROGRESS</div>
+<div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+
+<!-- Q1 -->
+<div class="question-block">
+  <div class="q-number">01 · Your Experience</div>
+  <div class="q-text">What's your relationship to spinal cord injury?</div>
+  <div class="q-sub">Select the one that fits best.</div>
+  <div class="options" data-q="q1" data-type="single">
+    <button class="option-btn" data-val="sci">I have a spinal cord injury</button>
+    <button class="option-btn" data-val="family">I'm a family member or carer of someone with SCI</button>
+    <button class="option-btn" data-val="peer">I work in peer support or lived experience roles</button>
+    <button class="option-btn" data-val="clinical">I work in SCI clinical or allied health</button>
+    <button class="option-btn" data-val="other">Other connection to the SCI community</button>
+  </div>
+</div>
+
+<!-- Q2 -->
+<div class="question-block">
+  <div class="q-number">02 · The Discharge Experience</div>
+  <div class="q-text">When you left rehab — or watched someone leave — how prepared did it feel?</div>
+  <div class="q-sub">No right answer. Just honest.</div>
+  <div class="options" data-q="q2" data-type="single">
+    <button class="option-btn" data-val="1">Completely blindsided. Nothing could have prepared us.</button>
+    <button class="option-btn" data-val="2">Mostly unprepared. We figured it out the hard way.</button>
+    <button class="option-btn" data-val="3">Somewhat prepared but the gaps were significant.</button>
+    <button class="option-btn" data-val="4">Reasonably prepared. Some rough patches but manageable.</button>
+    <button class="option-btn" data-val="5">Well prepared. The transition went smoothly.</button>
+  </div>
+</div>
+
+<!-- Q3 -->
+<div class="question-block">
+  <div class="q-number">03 · The First Week</div>
+  <div class="q-text">What was the hardest part of the first week home?</div>
+  <div class="q-sub">Select all that apply.</div>
+  <div class="options" data-q="q3" data-type="multi">
+    <div class="multi-option" data-val="ndis"><div class="checkbox-box"><span class="checkbox-tick">✓</span></div><div class="multi-label">NDIS / funding not sorted — equipment, supports, modifications not in place</div></div>
+    <div class="multi-option" data-val="family"><div class="checkbox-box"><span class="checkbox-tick">✓</span></div><div class="multi-label">Family overwhelmed and unsure what to do or who to call</div></div>
+    <div class="multi-option" data-val="routine"><div class="checkbox-box"><span class="checkbox-tick">✓</span></div><div class="multi-label">Bowel, bladder, skin routines falling apart without clinical support</div></div>
+    <div class="multi-option" data-val="mental"><div class="checkbox-box"><span class="checkbox-tick">✓</span></div><div class="multi-label">Mental health — the emotional crash of being home without the ward structure</div></div>
+    <div class="multi-option" data-val="info"><div class="checkbox-box"><span class="checkbox-tick">✓</span></div><div class="multi-label">No single place to find information — piecing it together from everywhere</div></div>
+    <div class="multi-option" data-val="contact"><div class="checkbox-box"><span class="checkbox-tick">✓</span></div><div class="multi-label">Not knowing who to call when something went wrong</div></div>
+    <div class="multi-option" data-val="other_hard"><div class="checkbox-box"><span class="checkbox-tick">✓</span></div><div class="multi-label">Something else entirely</div></div>
+  </div>
+</div>
+
+<div class="section-divider"><span>About R2H</span></div>
+
+<!-- Q4 -->
+<div class="question-block">
+  <div class="q-number">04 · The Concept</div>
+  <div class="q-text">R2H is a free digital guide — no download, works on any device — that walks you through discharge in four stages and is designed to be deleted when you don't need it anymore. Does that sound useful?</div>
+  <div class="q-sub">Based on what you know so far.</div>
+  <div class="options" data-q="q4" data-type="single">
+    <button class="option-btn" data-val="yes_need">Yes — I needed exactly this and it didn't exist</button>
+    <button class="option-btn" data-val="yes_useful">Yes — it sounds genuinely useful</button>
+    <button class="option-btn" data-val="maybe">Maybe — depends on how it's done</button>
+    <button class="option-btn" data-val="no">No — I don't think it would have helped my situation</button>
+    <button class="option-btn" data-val="unsure">Not sure yet</button>
+  </div>
+</div>
+
+<!-- Q5 -->
+<div class="question-block">
+  <div class="q-number">05 · The Tone</div>
+  <div class="q-text">R2H is built on a principle of radical honesty — no toxic positivity, no inspirational framing, no "you've got this!" when things genuinely suck. How important is that to you?</div>
+  <div class="q-sub">1 = doesn't matter · 5 = that's everything</div>
+  <div class="scale-wrap" data-q="q5" data-type="scale">
+    <button class="scale-btn" data-val="1">1</button>
+    <button class="scale-btn" data-val="2">2</button>
+    <button class="scale-btn" data-val="3">3</button>
+    <button class="scale-btn" data-val="4">4</button>
+    <button class="scale-btn" data-val="5">5</button>
+  </div>
+  <div class="scale-labels"><span>doesn't matter</span><span>everything</span></div>
+</div>
+
+<!-- Q6 -->
+<div class="question-block">
+  <div class="q-number">06 · Your Role in This</div>
+  <div class="q-text">If R2H moves forward, what would you want to be involved in?</div>
+  <div class="q-sub">Select all that apply.</div>
+  <div class="options" data-q="q6" data-type="multi">
+    <div class="multi-option" data-val="codesign"><div class="checkbox-box"><span class="checkbox-tick">✓</span></div><div class="multi-label">Co-design — shaping what the tool actually does and how it works</div></div>
+    <div class="multi-option" data-val="test"><div class="checkbox-box"><span class="checkbox-tick">✓</span></div><div class="multi-label">Testing — trying early versions and giving blunt feedback</div></div>
+    <div class="multi-option" data-val="workingparty"><div class="checkbox-box"><span class="checkbox-tick">✓</span></div><div class="multi-label">Working party — formal lived experience liaison role with Austin Health</div></div>
+    <div class="multi-option" data-val="spread"><div class="checkbox-box"><span class="checkbox-tick">✓</span></div><div class="multi-label">Spreading the word — sharing this with others in the SCI community</div></div>
+    <div class="multi-option" data-val="watch"><div class="checkbox-box"><span class="checkbox-tick">✓</span></div><div class="multi-label">Just staying informed — I want to know how this develops</div></div>
+    <div class="multi-option" data-val="nothing"><div class="checkbox-box"><span class="checkbox-tick">✓</span></div><div class="multi-label">Nothing right now — but keep the feedback coming</div></div>
+  </div>
+</div>
+
+<!-- Q7 -->
+<div class="question-block">
+  <div class="q-number">07 · The Honest One</div>
+  <div class="q-text">What would make R2H fail? What's the thing that could go wrong?</div>
+  <div class="q-sub">Optional — but the most valuable question on this page. Blunt answers only.</div>
+  <textarea class="open-input" data-q="q7" data-type="text" placeholder="If you're going to say something, say it straight..."></textarea>
+</div>
+
+<!-- SUBMIT -->
+<div class="submit-section">
+  <p class="submit-note">Anonymous unless you choose to share your contact below. No data is sold. No spam. This is a community conversation, not a mailing list.</p>
+  <textarea class="open-input" data-q="contact" data-type="text" placeholder="Optional: name / email / preferred way to be contacted if you want to be part of this" style="min-height:56px; margin-bottom:20px;"></textarea>
+  <button class="submit-btn" id="submitBtn" onclick="submitPoll()">Submit — I've said my piece</button>
+</div>
+```
+
+  </div>
+
+  <!-- THANK YOU STATE -->
+
+  <div class="thankyou" id="thankyou">
+    <div class="thankyou-icon">✊</div>
+    <h2>That's a 1mm forward.</h2>
+    <p>Your response has been recorded. It goes directly into the design of R2H — not into a spreadsheet nobody reads. The SCI community is building this. You're part of it.</p>
+
+  </div>
+
+  <!-- FOOTER -->
+
+  <div class="footer">
+    <div class="footer-brand">R2H · REHAB TO HOME · MELBOURNE 2026</div>
+    <div class="footer-note">A lived experience initiative<br>in partnership with Austin Health</div>
+  </div>
+
+</div>
+
+<script>
+  const answers = {};
+
+  // Single select
+  document.querySelectorAll('[data-type="single"]').forEach(group => {
+    group.querySelectorAll('.option-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        group.querySelectorAll('.option-btn').forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+        answers[group.dataset.q] = btn.dataset.val;
+        updateProgress();
+      });
+    });
+  });
+
+  // Multi select — use event delegation on parent to avoid child element blocking
+  document.querySelectorAll('[data-type="multi"]').forEach(group => {
+    group.addEventListener('click', (e) => {
+      const opt = e.target.closest('.multi-option');
+      if (!opt) return;
+      opt.classList.toggle('selected');
+      const q = group.dataset.q;
+      if (!answers[q]) answers[q] = [];
+      const val = opt.dataset.val;
+      if (opt.classList.contains('selected')) {
+        if (!answers[q].includes(val)) answers[q].push(val);
+      } else {
+        answers[q] = answers[q].filter(v => v !== val);
+      }
+      updateProgress();
+    });
+  });
+
+  // Scale
+  document.querySelectorAll('[data-type="scale"]').forEach(group => {
+    group.querySelectorAll('.scale-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        group.querySelectorAll('.scale-btn').forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+        answers[group.dataset.q] = btn.dataset.val;
+        updateProgress();
+      });
+    });
+  });
+
+  // Text
+  document.querySelectorAll('[data-type="text"]').forEach(el => {
+    el.addEventListener('input', () => {
+      answers[el.dataset.q] = el.value;
+    });
+  });
+
+  function updateProgress() {
+    const required = ['q1','q2','q3','q4','q5','q6'];
+    const answered = required.filter(q => {
+      if (!answers[q]) return false;
+      if (Array.isArray(answers[q])) return answers[q].length > 0;
+      return answers[q] !== '';
+    });
+    const pct = (answered.length / required.length) * 100;
+    document.getElementById('progressFill').style.width = pct + '%';
+  }
+
+  async function submitPoll() {
+    const btn = document.getElementById('submitBtn');
+    btn.disabled = true;
+    btn.textContent = 'Sending...';
+
+    const formData = new FormData();
+    for (const [key, value] of Object.entries(answers)) {
+      formData.append(key, Array.isArray(value) ? value.join(', ') : value);
+    }
+
+    try {
+      await fetch('https://tally.so/r/4486VX', {
+        method: 'POST',
+        mode: 'no-cors',
+        body: formData
+      });
+    } catch (e) {
+      // no-cors means we can't read the response — this is expected
+    }
+
+    // Always show thank you regardless of network response
+    const form = document.getElementById('poll-form');
+    const ty = document.getElementById('thankyou');
+    form.style.display = 'none';
+    ty.style.display = 'block';
+    ty.classList.add('show');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+</script>
+
+</body>
+</html>
