@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>R2H — Community Pulse Check</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy: #1A3A52;
+  --teal: #1A7A8A;
+  --amber: #D4860A;
+  --grey: #717D7E;
+  --white: #FFFFFF;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--navy);
+  color: var(--white);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.6;
+}
+.container {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 60px 24px 80px;
+  position: relative;
+  z-index: 1;
+}
+.header { margin-bottom: 48px; }
+.badge {
+  display: inline-block;
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  color: var(--teal);
+  border: 1px solid var(--teal);
+  padding: 5px 12px;
+  margin-bottom: 24px;
+  text-transform: uppercase;
+}
+.main-title {
+  font-family: 'DM Serif Display', serif;
+  font-size: clamp(36px, 8vw, 58px);
+  line-height: 1.05;
+  color: var(--white);
+  margin-bottom: 12px;
+}
+.main-title em { font-style: italic; color: var(--amber); }
+.subtitle {
+  font-size: 16px;
+  color: rgba(255,255,255,0.55);
+  line-height: 1.6;
+  max-width: 520px;
+  font-weight: 300;
+}
+
+/* Q0 — role selector, sits between header and progress, no label */
+.role-selector {
+  margin-bottom: 48px;
+  padding: 24px;
+  border: 1px solid rgba(255,255,255,0.07);
+  background: rgba(255,255,255,0.02);
+}
+.role-selector-label {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  color: rgba(255,255,255,0.35);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-bottom: 14px;
+}
+.role-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.role-pill {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: rgba(255,255,255,0.6);
+  padding: 8px 16px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  line-height: 1.3;
+}
+.role-pill:hover {
+  border-color: var(--teal);
+  color: var(--white);
+  background: rgba(26,122,138,0.12);
+}
+.role-pill.selected {
+  border-color: var(--teal);
+  background: rgba(26,122,138,0.2);
+  color: var(--white);
+}
+
+.progress-wrap { margin-bottom: 52px; }
+.progress-text {
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  color: var(--grey);
+  margin-bottom: 8px;
+  letter-spacing: 0.05em;
+  display: flex;
+  justify-content: space-between;
+}
+.progress-bar { height: 2px; background: rgba(255,255,255,0.1); }
+.progress-fill {
+  height: 100%;
+  background: var(--teal);
+  transition: width 0.4s ease;
+  width: 0%;
+}
+.question-block {
+  margin-bottom: 52px;
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fadeUp 0.5s ease forwards;
+}
+.question-block:nth-child(1) { animation-delay: 0.05s; }
+.question-block:nth-child(2) { animation-delay: 0.10s; }
+.question-block:nth-child(3) { animation-delay: 0.15s; }
+.question-block:nth-child(4) { animation-delay: 0.20s; }
+.question-block:nth-child(5) { animation-delay: 0.25s; }
+.question-block:nth-child(6) { animation-delay: 0.30s; }
+.question-block:nth-child(7) { animation-delay: 0.35s; }
+.question-block:nth-child(8) { animation-delay: 0.40s; }
+@keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
+.sub-block {
+  margin-top: 24px;
+  padding: 20px;
+  border-left: 2px solid rgba(26,122,138,0.4);
+  background: rgba(26,122,138,0.05);
+}
+.q-number {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  color: var(--teal);
+  letter-spacing: 0.12em;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+}
+.q-number.sub { color: rgba(26,122,138,0.7); }
+.q-text {
+  font-family: 'DM Serif Display', serif;
+  font-size: 20px;
+  line-height: 1.4;
+  color: var(--white);
+  margin-bottom: 6px;
+}
+.q-text.sub { font-size: 17px; }
+.q-sub {
+  font-size: 13px;
+  color: rgba(255,255,255,0.4);
+  margin-bottom: 18px;
+  line-height: 1.5;
+  font-weight: 300;
+}
+.options { display: flex; flex-direction: column; gap: 8px; }
+.option-btn {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: rgba(255,255,255,0.75);
+  padding: 14px 56px 14px 18px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.2s ease;
+  line-height: 1.4;
+  position: relative;
+}
+.option-btn:hover { border-color: var(--teal); color: var(--white); background: rgba(26,122,138,0.12); }
+.option-btn.selected { border-color: var(--teal); background: rgba(26,122,138,0.2); color: var(--white); }
+.option-btn.selected::after {
+  content: 'OK';
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--teal);
+  font-size: 10px;
+  font-family: 'Space Mono', monospace;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
+.multi-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.1);
+  padding: 14px 16px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.multi-option:hover { border-color: var(--teal); background: rgba(26,122,138,0.1); }
+.multi-option.selected { border-color: var(--teal); background: rgba(26,122,138,0.18); }
+.role-flag {
+  font-family: 'Space Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  color: var(--amber);
+  border: 1px solid rgba(212,134,10,0.4);
+  padding: 2px 6px;
+  margin-left: 8px;
+  white-space: nowrap;
+  text-transform: uppercase;
+  display: inline-block;
+  position: relative;
+  top: -1px;
+}
+.checkbox-box {
+  width: 16px;
+  height: 16px;
+  border: 1px solid rgba(255,255,255,0.25);
+  flex-shrink: 0;
+  margin-top: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+.multi-option.selected .checkbox-box { background: var(--teal); border-color: var(--teal); }
+.checkbox-tick { color: white; font-size: 10px; display: none; }
+.multi-option.selected .checkbox-tick { display: block; }
+.multi-label { font-size: 14px; color: rgba(255,255,255,0.7); line-height: 1.4; flex: 1; }
+.multi-option.selected .multi-label { color: var(--white); }
+.scale-wrap { display: flex; gap: 6px; align-items: center; }
+.scale-btn {
+  width: 44px;
+  height: 44px;
+  border: 1px solid rgba(255,255,255,0.1);
+  background: rgba(255,255,255,0.04);
+  color: rgba(255,255,255,0.6);
+  font-family: 'Space Mono', monospace;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.scale-btn:hover { border-color: var(--teal); color: var(--white); background: rgba(26,122,138,0.15); }
+.scale-btn.selected { background: var(--teal); border-color: var(--teal); color: var(--white); }
+.scale-labels {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 8px;
+  font-size: 11px;
+  color: rgba(255,255,255,0.3);
+  font-family: 'Space Mono', monospace;
+}
+.open-input {
+  width: 100%;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: var(--white);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  padding: 14px 16px;
+  resize: vertical;
+  min-height: 80px;
+  line-height: 1.6;
+  transition: border-color 0.2s;
+  outline: none;
+}
+.open-input::placeholder { color: rgba(255,255,255,0.25); }
+.open-input:focus { border-color: var(--teal); }
+.section-divider {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin: 40px 0 32px;
+}
+.section-divider span {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  color: var(--amber);
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.section-divider::before,
+.section-divider::after { content: ''; flex: 1; height: 1px; background: rgba(255,255,255,0.08); }
+.submit-section {
+  margin-top: 56px;
+  padding-top: 40px;
+  border-top: 1px solid rgba(255,255,255,0.08);
+}
+.submit-note {
+  font-size: 13px;
+  color: rgba(255,255,255,0.35);
+  margin-bottom: 20px;
+  line-height: 1.6;
+  font-weight: 300;
+}
+.submit-btn {
+  background: var(--teal);
+  color: var(--white);
+  border: none;
+  padding: 18px 40px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  letter-spacing: 0.02em;
+  transition: all 0.2s;
+  display: inline-block;
+}
+.submit-btn:hover { background: #15606d; transform: translateY(-1px); }
+.submit-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+.thankyou { display: none; text-align: center; padding: 80px 0; }
+.thankyou.show { display: block; }
+.thankyou-icon { font-size: 48px; margin-bottom: 24px; }
+.thankyou h2 {
+  font-family: 'DM Serif Display', serif;
+  font-size: 36px;
+  color: var(--white);
+  margin-bottom: 16px;
+}
+.thankyou p {
+  color: rgba(255,255,255,0.55);
+  font-size: 15px;
+  line-height: 1.7;
+  max-width: 420px;
+  margin: 0 auto;
+  font-weight: 300;
+}
+.footer {
+  margin-top: 80px;
+  padding-top: 24px;
+  border-top: 1px solid rgba(255,255,255,0.06);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.footer-brand {
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  color: rgba(255,255,255,0.25);
+  letter-spacing: 0.08em;
+}
+.footer-note { font-size: 11px; color: rgba(255,255,255,0.2); text-align: right; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="header">
+    <div class="badge">R2H · Community Pulse Check · 2026</div>
+    <h1 class="main-title">Does this<br><em>exist</em> for you?</h1>
+    <p class="subtitle">We are building something that was not there when we came home. Before we build it, we want to know if it is what the community actually needs. This is not a survey. It is a conversation starter. Blunt answers only.</p>
+  </div>
+
+  <div id="poll-form">
+
+    <!-- Q0 — role selector, unlabelled, outside progress tracking -->
+    <div class="role-selector">
+      <div class="role-selector-label">Who is filling this in</div>
+      <div class="role-pills" id="rolePills">
+        <button class="role-pill" data-val="sci_self">I have an SCI</button>
+        <button class="role-pill" data-val="sci_family">Family or carer</button>
+        <button class="role-pill" data-val="sci_peer">Peer support or lived experience</button>
+        <button class="role-pill" data-val="sci_clinical">Clinical or allied health</button>
+        <button class="role-pill" data-val="sci_other">Other connection</button>
+      </div>
+    </div>
+
+    <div class="progress-wrap">
+      <div class="progress-text">
+        <span>QUESTION PROGRESS</span>
+        <span id="progressLabel">0 of 7</span>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+    </div>
+
+    <!-- Q1 -->
+    <div class="question-block">
+      <div class="q-number">01 · The Moment It Hit</div>
+      <div class="q-text">When you left rehab — or watched someone leave — what was the first thing that hit you?</div>
+      <div class="q-sub">The fear that landed hardest. Pick the one that is truest.</div>
+      <div class="options" data-q="q1" data-type="single">
+        <button class="option-btn" data-val="fear_capability">Not knowing if I could actually handle what was coming.</button>
+        <button class="option-btn" data-val="fear_system">Not knowing who to call when something went wrong.</button>
+        <button class="option-btn" data-val="fear_family">Being terrified of what this was going to do to the people around me.</button>
+        <button class="option-btn" data-val="fear_identity">Not recognising the life I was going home to.</button>
+        <button class="option-btn" data-val="fear_numb">Nothing. I was too numb to feel anything yet.</button>
+      </div>
+    </div>
+
+    <!-- Q2 -->
+    <div class="question-block">
+      <div class="q-number">02 · The Discharge Experience</div>
+      <div class="q-text">How prepared did discharge actually feel?</div>
+      <div class="q-sub">1 = completely blindsided · 5 = genuinely ready</div>
+      <div class="scale-wrap" data-q="q2" data-type="scale">
+        <button class="scale-btn" data-val="1">1</button>
+        <button class="scale-btn" data-val="2">2</button>
+        <button class="scale-btn" data-val="3">3</button>
+        <button class="scale-btn" data-val="4">4</button>
+        <button class="scale-btn" data-val="5">5</button>
+      </div>
+      <div class="scale-labels"><span>blindsided</span><span>genuinely ready</span></div>
+      <div class="sub-block">
+        <div class="q-number sub">02b · What Fell Through</div>
+        <div class="q-text sub">What specifically was not there when you needed it?</div>
+        <div class="q-sub" style="margin-bottom:14px;">Select all that apply.</div>
+        <div class="options" data-q="q2b" data-type="multi" style="margin-bottom:14px;">
+          <div class="multi-option" data-val="ndis"><div class="checkbox-box"><span class="checkbox-tick">+</span></div><div class="multi-label">NDIS and funding — equipment, modifications, supports not in place at discharge</div></div>
+          <div class="multi-option" data-val="clinical"><div class="checkbox-box"><span class="checkbox-tick">+</span></div><div class="multi-label">Clinical continuity — bowel, bladder, skin routines with no backup when things went wrong</div></div>
+          <div class="multi-option" data-val="emergency"><div class="checkbox-box"><span class="checkbox-tick">+</span></div><div class="multi-label">An emergency contact — a real person who knew my situation and could actually help</div></div>
+          <div class="multi-option" data-val="family_prep"><div class="checkbox-box"><span class="checkbox-tick">+</span></div><div class="multi-label">Family preparation — carers thrown in at the deep end with no real training or support</div></div>
+          <div class="multi-option" data-val="mental_health"><div class="checkbox-box"><span class="checkbox-tick">+</span></div><div class="multi-label">Mental health support — the emotional crash of leaving the ward structure</div></div>
+          <div class="multi-option" data-val="information"><div class="checkbox-box"><span class="checkbox-tick">+</span></div><div class="multi-label">A single source of truth — piecing information together from five different places</div></div>
+          <div class="multi-option" data-val="peer"><div class="checkbox-box"><span class="checkbox-tick">+</span></div><div class="multi-label">Peer connection — someone who had actually been through it and could tell me what was real</div></div>
+        </div>
+        <textarea class="open-input" data-q="q2b_other" data-type="text" placeholder="Anything else that fell through — in your own words..." style="min-height:60px;"></textarea>
+      </div>
+    </div>
+
+    <!-- Q3 -->
+    <div class="question-block">
+      <div class="q-number">03 · How Long</div>
+      <div class="q-text">How long before things felt even remotely stable at home?</div>
+      <div class="q-sub">Stable meaning routines holding, supports in place, not in crisis mode.</div>
+      <div class="options" data-q="q3" data-type="single">
+        <button class="option-btn" data-val="never">It never really did — or has not yet.</button>
+        <button class="option-btn" data-val="months_6plus">More than six months.</button>
+        <button class="option-btn" data-val="months_3to6">Three to six months.</button>
+        <button class="option-btn" data-val="months_1to3">One to three months.</button>
+        <button class="option-btn" data-val="weeks_2to4">Two to four weeks.</button>
+        <button class="option-btn" data-val="week_1">Within the first week.</button>
+      </div>
+    </div>
+
+    <div class="section-divider"><span>About R2H</span></div>
+
+    <!-- Q4 -->
+    <div class="question-block">
+      <div class="q-number">04 · The Concept</div>
+      <div class="q-text">The moment you leave rehab, the system essentially stops. R2H is a free tool — no download, any device — that stays with you through discharge, the first week, and community reintegration. It is built to be deleted when you do not need it anymore. Deletion is the goal.</div>
+      <div class="q-sub">If this had existed — would it have changed anything for you?</div>
+      <div class="options" data-q="q4" data-type="single">
+        <button class="option-btn" data-val="yes_critical">Yes — this is exactly what was missing. It would have changed a lot.</button>
+        <button class="option-btn" data-val="yes_helpful">Yes — it would have helped, even if it did not fix everything.</button>
+        <button class="option-btn" data-val="maybe">Maybe — depends entirely on how it is done and who is behind it.</button>
+        <button class="option-btn" data-val="no_different">No — my situation needed something different.</button>
+        <button class="option-btn" data-val="no_tool">No tool could have helped with what we were dealing with.</button>
+      </div>
+    </div>
+
+    <!-- Q5 -->
+    <div class="question-block">
+      <div class="q-number">05 · The Tone</div>
+      <div class="q-text">R2H is built on radical honesty. No toxic positivity. No inspirational framing when things genuinely suck. How much does that matter to you?</div>
+      <div class="q-sub">1 = does not matter · 5 = that is the whole point</div>
+      <div class="scale-wrap" data-q="q5" data-type="scale">
+        <button class="scale-btn" data-val="1">1</button>
+        <button class="scale-btn" data-val="2">2</button>
+        <button class="scale-btn" data-val="3">3</button>
+        <button class="scale-btn" data-val="4">4</button>
+        <button class="scale-btn" data-val="5">5</button>
+      </div>
+      <div class="scale-labels"><span>does not matter</span><span>the whole point</span></div>
+    </div>
+
+    <!-- Q6 -->
+    <div class="question-block">
+      <div class="q-number">06 · Your Role in This</div>
+      <div class="q-text">R2H is being built with the community, not for it. What level of involvement makes sense for you?</div>
+      <div class="q-sub">Select all that apply. Roles marked ACTIVE ROLE require real commitment — we are not collecting names, we are building a team.</div>
+      <div class="options" data-q="q6" data-type="multi">
+        <div class="multi-option" data-val="workingparty"><div class="checkbox-box"><span class="checkbox-tick">+</span></div><div class="multi-label">Working party — formal lived experience authority role with Austin Health <span class="role-flag">Active Role</span></div></div>
+        <div class="multi-option" data-val="codesign"><div class="checkbox-box"><span class="checkbox-tick">+</span></div><div class="multi-label">Co-design — direct input on what R2H does and how it works <span class="role-flag">Active Role</span></div></div>
+        <div class="multi-option" data-val="pilot"><div class="checkbox-box"><span class="checkbox-tick">+</span></div><div class="multi-label">Pilot participant — use R2H during or after discharge and give real feedback <span class="role-flag">Active Role</span></div></div>
+        <div class="multi-option" data-val="test"><div class="checkbox-box"><span class="checkbox-tick">+</span></div><div class="multi-label">Testing — try early versions and give blunt, honest feedback</div></div>
+        <div class="multi-option" data-val="spread"><div class="checkbox-box"><span class="checkbox-tick">+</span></div><div class="multi-label">Spreading the word — share this with others in the SCI community</div></div>
+        <div class="multi-option" data-val="watch"><div class="checkbox-box"><span class="checkbox-tick">+</span></div><div class="multi-label">Keep me informed — I want to watch how this develops</div></div>
+      </div>
+    </div>
+
+    <!-- Q7 -->
+    <div class="question-block">
+      <div class="q-number">07 · The Most Important One</div>
+      <div class="q-text">What do you wish had existed to help you ride the transition home better?</div>
+      <div class="q-sub">Be specific if you can. A tool, a person, a system, a piece of information. What was the thing that was not there?</div>
+      <textarea class="open-input" data-q="q7" data-type="text" placeholder="What would have actually made a difference..."></textarea>
+    </div>
+
+    <!-- SUBMIT -->
+    <div class="submit-section">
+      <p class="submit-note">Anonymous unless you choose to share your contact below. No data sold. No spam. If you selected an Active Role above, leaving your contact is how we reach you.</p>
+      <textarea class="open-input" data-q="contact" data-type="text" placeholder="Optional: name and email — required if you want an active role" style="min-height:56px; margin-bottom:20px;"></textarea>
+      <button class="submit-btn" id="submitBtn">Submit — I have said my piece</button>
+    </div>
+
+  </div>
+
+  <div class="thankyou" id="thankyou">
+    <div class="thankyou-icon">&#9994;</div>
+    <h2>That is a 1mm forward.</h2>
+    <p>Your response goes directly into the design of R2H — not into a spreadsheet nobody reads. The SCI community is building this. You are part of it.</p>
+  </div>
+
+  <div class="footer">
+    <div class="footer-brand">R2H · REHAB TO HOME · MELBOURNE 2026</div>
+    <div class="footer-note">A lived experience initiative<br>in partnership with Austin Health</div>
+  </div>
+
+</div>
+<script>
+var answers = {};
+var TRACKED = ['q1','q2','q2b','q3','q4','q5','q6'];
+var SUPABASE_URL = 'https://zalchkkkdznlkdpudofe.supabase.co';
+var SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InphbGNoa2trZHpubGtkcHVkb2ZlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIzOTMwNDcsImV4cCI6MjA4Nzk2OTA0N30.OW4QuT2eU6e0QvjdymnuD_twwV515zjNizzGAiOYQiM';
+var thankYouShown = false;
+
+/* Q0 — role pills, stored as q0, not in progress tracking */
+document.querySelectorAll('#rolePills .role-pill').forEach(function(pill) {
+  pill.addEventListener('click', function() {
+    document.querySelectorAll('#rolePills .role-pill').forEach(function(p) { p.classList.remove('selected'); });
+    pill.classList.add('selected');
+    answers['q0'] = pill.dataset.val;
+  });
+});
+
+function updateProgress() {
+  var answered = 0;
+  TRACKED.forEach(function(q) {
+    var v = answers[q];
+    if (v !== undefined && v !== '' && !(Array.isArray(v) && v.length === 0)) answered++;
+  });
+  var pct = Math.round((answered / TRACKED.length) * 100);
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressLabel').textContent = answered + ' of 7';
+}
+
+document.querySelectorAll('.options[data-type="single"]').forEach(function(group) {
+  var q = group.dataset.q;
+  group.querySelectorAll('.option-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      group.querySelectorAll('.option-btn').forEach(function(b) { b.classList.remove('selected'); });
+      btn.classList.add('selected');
+      answers[q] = btn.dataset.val;
+      updateProgress();
+    });
+  });
+});
+
+document.querySelectorAll('.options[data-type="multi"]').forEach(function(group) {
+  var q = group.dataset.q;
+  answers[q] = [];
+  group.querySelectorAll('.multi-option').forEach(function(opt) {
+    opt.addEventListener('click', function() {
+      opt.classList.toggle('selected');
+      var val = opt.dataset.val;
+      if (opt.classList.contains('selected')) {
+        if (answers[q].indexOf(val) === -1) answers[q].push(val);
+      } else {
+        answers[q] = answers[q].filter(function(v) { return v !== val; });
+      }
+      updateProgress();
+    });
+  });
+});
+
+document.querySelectorAll('.scale-wrap[data-type="scale"]').forEach(function(wrap) {
+  var q = wrap.dataset.q;
+  wrap.querySelectorAll('.scale-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      wrap.querySelectorAll('.scale-btn').forEach(function(b) { b.classList.remove('selected'); });
+      btn.classList.add('selected');
+      answers[q] = btn.dataset.val;
+      updateProgress();
+    });
+  });
+});
+
+document.querySelectorAll('.open-input[data-type="text"]').forEach(function(input) {
+  input.addEventListener('input', function() {
+    answers[input.dataset.q] = input.value.trim();
+  });
+});
+
+function showThankYou() {
+  if (thankYouShown) return;
+  thankYouShown = true;
+  document.getElementById('poll-form').style.display = 'none';
+  document.getElementById('thankyou').classList.add('show');
+  document.getElementById('progressFill').style.width = '100%';
+  document.getElementById('progressLabel').textContent = '7 of 7';
+}
+
+document.getElementById('submitBtn').addEventListener('click', function() {
+  var btn = document.getElementById('submitBtn');
+  btn.disabled = true;
+  btn.textContent = 'Sending...';
+
+  var payload = {
+    role: answers['q0'] || null,
+    q1: answers['q1'] || null,
+    q2: answers['q2'] || null,
+    q2b: Array.isArray(answers['q2b']) ? answers['q2b'].join(', ') : (answers['q2b'] || null),
+    q2b_other: answers['q2b_other'] || null,
+    q3: answers['q3'] || null,
+    q4: answers['q4'] || null,
+    q5: answers['q5'] || null,
+    q6: Array.isArray(answers['q6']) ? answers['q6'].join(', ') : (answers['q6'] || null),
+    q7: answers['q7'] || null,
+    contact: answers['contact'] || null
+  };
+
+  fetch(SUPABASE_URL + '/rest/v1/responses', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'apikey': SUPABASE_KEY,
+      'Authorization': 'Bearer ' + SUPABASE_KEY,
+      'Prefer': 'return=minimal'
+    },
+    body: JSON.stringify(payload)
+  }).catch(function() {}).finally(function() {
+    showThankYou();
+  });
+
+  setTimeout(showThankYou, 3000);
+});
+</script>
+</body>
+</html>
